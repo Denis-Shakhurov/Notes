@@ -4,13 +4,11 @@ import com.example.notes.domain.Note
 import com.example.notes.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-class TestNoteRepositoryImpl : NoteRepository {
+object TestNoteRepositoryImpl : NoteRepository {
 
     private val notesListFlow = MutableStateFlow<List<Note>>(listOf())
 
