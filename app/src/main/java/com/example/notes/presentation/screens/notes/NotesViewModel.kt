@@ -76,7 +76,7 @@ class NotesViewModel: ViewModel() {
                 val note = getNoteUseCase(command.note.id)
                 val title = note.title
 
-                editNoteUseCase(note.copy(title = "$title - edited"))
+                editNoteUseCase(note.copy(title = "$title - pinned"))
             }
             is NotesCommand.InputSearchQuery -> {
                 query.update { command.query.trim() }
