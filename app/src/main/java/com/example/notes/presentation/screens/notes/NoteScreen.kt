@@ -1,13 +1,11 @@
 package com.example.notes.presentation.screens.notes
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,28 +24,27 @@ fun NoteScreen(
 
     val state by viewModel.state.collectAsState()
 
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .padding(top = 40.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(top = 40.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            state.pinnedNotes.forEach { note ->
-                NoteCard(
-                    note = note,
-                    onNoteClick = {
-                        viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
-                    }
-                )
+        item {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(state.pinnedNotes) { note ->
+                    NoteCard(
+                        note = note,
+                        onNoteClick = {
+                            viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
+                        }
+                    )
+                }
             }
         }
 
-        state.otherNotes.forEach { note ->
+        items(state.otherNotes) { note ->
             NoteCard(
                 note = note,
                 onNoteClick = {
