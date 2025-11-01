@@ -25,7 +25,7 @@ fun NoteScreen(
     val state by viewModel.state.collectAsState()
 
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 40.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -33,7 +33,10 @@ fun NoteScreen(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(state.pinnedNotes) { note ->
+                items(
+                    items = state.pinnedNotes,
+                    key = { it.id}
+                    ) { note ->
                     NoteCard(
                         note = note,
                         onNoteClick = {
@@ -44,7 +47,10 @@ fun NoteScreen(
             }
         }
 
-        items(state.otherNotes) { note ->
+        items(
+            items = state.otherNotes,
+            key = { it.id }
+        ) { note ->
             NoteCard(
                 note = note,
                 onNoteClick = {
@@ -62,7 +68,7 @@ fun NoteCard(
     onNoteClick: (Note) -> Unit
 ) {
     Text(
-        modifier = Modifier
+        modifier = modifier
             .clickable {
                 onNoteClick(note)
             },
