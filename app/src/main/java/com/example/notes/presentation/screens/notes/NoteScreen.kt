@@ -148,7 +148,7 @@ private fun Title(
         text = text,
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.onSurface
     )
 }
 
@@ -160,6 +160,7 @@ private fun SearchBar(
 ) {
     TextField(
         modifier = modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -175,8 +176,8 @@ private fun SearchBar(
             )
         },
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.onSurface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
