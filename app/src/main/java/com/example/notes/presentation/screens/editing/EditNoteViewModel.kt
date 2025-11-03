@@ -25,7 +25,9 @@ class EditNoteViewModel(
     init {
         viewModelScope.launch {
             val note = getNoteUseCase(noteId)
-            EditNoteState.Editing(note)
+            _state.update {
+                EditNoteState.Editing(note)
+            }
         }
     }
 
