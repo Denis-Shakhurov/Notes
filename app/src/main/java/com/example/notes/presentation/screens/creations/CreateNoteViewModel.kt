@@ -1,6 +1,5 @@
 package com.example.notes.presentation.screens.creations
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notes.data.TestNoteRepositoryImpl
