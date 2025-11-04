@@ -24,5 +24,6 @@ interface NotesDao {
     @Insert(onConflict = REPLACE)
     suspend fun addNote(noteDBModel: NoteDBModel)
 
-
+    @Query("SELECT * FROM notes WHERE id == :noteId")
+    suspend fun getNote(noteId: Int): NoteDBModel
 }
