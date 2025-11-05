@@ -2,19 +2,14 @@
 
 package com.example.notes.presentation.screens.notes
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notes.data.TestNoteRepositoryImpl
+import com.example.notes.data.NoteRepositoryImpl
 import com.example.notes.domain.Note
-import com.example.notes.domain.usecase.AddNoteUseCase
-import com.example.notes.domain.usecase.DeleteNoteUseCase
-import com.example.notes.domain.usecase.EditNoteUseCase
 import com.example.notes.domain.usecase.GetAllNotesUseCase
-import com.example.notes.domain.usecase.GetNoteUseCase
 import com.example.notes.domain.usecase.SearchNotesUseCase
 import com.example.notes.domain.usecase.SwitchPinnedStatusUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,8 +19,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NotesViewModel: ViewModel() {
-    private val repository = TestNoteRepositoryImpl
+class NotesViewModel(context: Context) : ViewModel() {
+    private val repository = NoteRepositoryImpl.getInstance(context)
     private val getAllNotesUseCase = GetAllNotesUseCase(repository)
     private val searchNotesUseCase = SearchNotesUseCase(repository)
     private val switchPinnedStatusUseCase = SwitchPinnedStatusUseCase(repository)
@@ -61,6 +56,7 @@ class NotesViewModel: ViewModel() {
                 is NotesCommand.InputSearchQuery -> {
                     query.update { command.query.trim() }
                 }
+
                 is NotesCommand.SwitchPinnedStatus -> {
                     switchPinnedStatusUseCase(command.noteId)
                 }
@@ -72,8 +68,8 @@ class NotesViewModel: ViewModel() {
 
 sealed interface NotesCommand {
 
-    data class InputSearchQuery(val query: String): NotesCommand
-    data class SwitchPinnedStatus(val noteId: Int): NotesCommand
+    data class InputSearchQuery(val query: String) : NotesCommand
+    data class SwitchPinnedStatus(val noteId: Int) : NotesCommand
 }
 
 data class NotesScreenState(
