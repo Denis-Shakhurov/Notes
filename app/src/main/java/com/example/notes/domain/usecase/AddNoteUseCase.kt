@@ -2,8 +2,9 @@ package com.example.notes.domain.usecase
 
 import com.example.notes.domain.Note
 import com.example.notes.domain.repository.NoteRepository
+import javax.inject.Inject
 
-class AddNoteUseCase(
+class AddNoteUseCase @Inject constructor (
     private val repository: NoteRepository
 ) {
 

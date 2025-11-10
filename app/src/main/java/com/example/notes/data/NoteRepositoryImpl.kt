@@ -1,16 +1,14 @@
 package com.example.notes.data
 
-import android.content.Context
 import com.example.notes.domain.Note
 import com.example.notes.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class NoteRepositoryImpl private constructor(
-    context: Context
+class NoteRepositoryImpl @Inject constructor(
+    private val notesDao: NotesDao
 ) : NoteRepository {
-    private val notesDatabase = NotesDatabase.getInstance(context)
-    private val notesDao = notesDatabase.notesDao()
 
     override suspend fun addNote(
         title: String,
@@ -44,22 +42,5 @@ class NoteRepositoryImpl private constructor(
 
     override suspend fun switchPinnedStatus(noteId: Int) {
         notesDao.switchPinnedStatus(noteId)
-    }
-
-    companion object {
-        private var instance: NoteRepositoryImpl? = null
-        private val LOCK = Any()
-
-        fun getInstance(context: Context): NoteRepositoryImpl {
-            instance?.let { return it }
-
-            synchronized(LOCK) {
-                instance?.let { return it }
-
-                return NoteRepositoryImpl(context).also {
-                    instance = it
-                }
-            }
-        }
     }
 }

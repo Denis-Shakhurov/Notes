@@ -1,26 +1,28 @@
 package com.example.notes.presentation.screens.editing
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notes.data.NoteRepositoryImpl
 import com.example.notes.domain.Note
 import com.example.notes.domain.usecase.DeleteNoteUseCase
 import com.example.notes.domain.usecase.EditNoteUseCase
 import com.example.notes.domain.usecase.GetNoteUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class EditNoteViewModel(
-    context: Context,
-    private val noteId: Int
+@HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
+class EditNoteViewModel @AssistedInject constructor(
+    private val editNoteUseCase: EditNoteUseCase,
+    private val getNoteUseCase: GetNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase,
+    @Assisted("noteId") private val noteId: Int
 ) : ViewModel() {
-    private val repository = NoteRepositoryImpl.getInstance(context)
-    private val editNoteUseCase = EditNoteUseCase(repository)
-    private val getNoteUseCase = GetNoteUseCase(repository)
-    private val deleteNoteUseCase = DeleteNoteUseCase(repository)
+
     private val _state = MutableStateFlow<EditNoteState>(EditNoteState.Initial)
     val state = _state.asStateFlow()
 
@@ -34,10 +36,11 @@ class EditNoteViewModel(
     }
 
     fun processCommand(command: EditNoteCommand) {
-        when(command) {
+        when (command) {
             EditNoteCommand.Back -> {
                 _state.update { EditNoteState.Finished }
             }
+
             is EditNoteCommand.InputContent -> {
                 _state.update { previousState ->
                     if (previousState is EditNoteState.Editing) {
@@ -48,6 +51,7 @@ class EditNoteViewModel(
                     }
                 }
             }
+
             is EditNoteCommand.InputTitle -> {
                 _state.update { previousState ->
                     if (previousState is EditNoteState.Editing) {
@@ -58,6 +62,7 @@ class EditNoteViewModel(
                     }
                 }
             }
+
             EditNoteCommand.Save -> {
                 viewModelScope.launch {
                     _state.update { previousState ->
@@ -87,20 +92,29 @@ class EditNoteViewModel(
             }
         }
     }
+
+    @AssistedFactory
+    interface Factory {
+
+        fun create(
+            @Assisted("noteId") noteId: Int
+        ): EditNoteViewModel
+    }
+
 }
 
 sealed interface EditNoteCommand {
 
-    data class InputTitle(val title: String): EditNoteCommand
-    data class InputContent(val content: String): EditNoteCommand
-    data object Save: EditNoteCommand
-    data object Back: EditNoteCommand
-    data object Delete: EditNoteCommand
+    data class InputTitle(val title: String) : EditNoteCommand
+    data class InputContent(val content: String) : EditNoteCommand
+    data object Save : EditNoteCommand
+    data object Back : EditNoteCommand
+    data object Delete : EditNoteCommand
 }
 
 sealed interface EditNoteState {
 
-    data object Initial: EditNoteState
+    data object Initial : EditNoteState
 
     data class Editing(
         val note: Note
