@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.notes.R
+import com.example.notes.domain.ContentItem
 import com.example.notes.domain.Note
 import com.example.notes.presentation.ui.theme.OtherNotesColors
 import com.example.notes.presentation.ui.theme.PinnedNotesColors
@@ -76,7 +77,8 @@ fun NoteScreen(
             item {
                 Title(
                     modifier = Modifier.padding(horizontal = 24.dp),
-                    text = "All Notes")
+                    text = "All Notes"
+                )
             }
 
             item {
@@ -111,7 +113,7 @@ fun NoteScreen(
                 ) {
                     itemsIndexed(
                         items = state.pinnedNotes,
-                        key = { _, note -> note.id}
+                        key = { _, note -> note.id }
                     ) { index, note ->
                         NoteCard(
                             modifier = Modifier.widthIn(max = 160.dp),
@@ -131,7 +133,7 @@ fun NoteScreen(
             item {
                 SubTitle(
                     modifier = Modifier.padding(horizontal = 24.dp),
-                    text = if (state.otherNotes.isNotEmpty())"Others" else "Пока не добавлено ни одной заметки"
+                    text = if (state.otherNotes.isNotEmpty()) "Others" else "Пока не добавлено ни одной заметки"
                 )
             }
             item {
@@ -139,7 +141,7 @@ fun NoteScreen(
             }
             itemsIndexed(
                 items = state.otherNotes,
-                key = { _, note ->  note.id }
+                key = { _, note -> note.id }
             ) { index, note ->
                 NoteCard(
                     modifier = Modifier
@@ -259,13 +261,20 @@ fun NoteCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = note.content,
-            fontSize = 16.sp,
-            maxLines = 3,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium,
-            overflow = TextOverflow.Ellipsis
-        )
+
+        note.content
+            .filterIsInstance<ContentItem.Text>()
+            .joinToString("\n") { it.content }
+            .let {
+                Text(
+                    text = it,
+                    fontSize = 16.sp,
+                    maxLines = 3,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
     }
 }

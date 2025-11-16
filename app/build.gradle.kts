@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kapt)
     alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.serialization)
 }
@@ -46,9 +46,11 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
+    kapt("androidx.room:room-compiler:2.8.3")
+    kapt("com.google.dagger:hilt-android-compiler:2.57.2")
+//    ksp(libs.androidx.room.compiler)
     implementation(libs.hilt.android)
-    ksp(libs.dagger.hilt.android.compiler)
+//    ksp(libs.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.core.ktx)
