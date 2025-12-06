@@ -51,6 +51,8 @@ dependencies {
 //    ksp(libs.androidx.room.compiler)
     implementation(libs.hilt.android)
 //    ksp(libs.dagger.hilt.android.compiler)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.core.ktx)
