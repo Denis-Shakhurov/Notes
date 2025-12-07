@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class NoteRepositoryImpl @Inject constructor(
-    private val notesDao: NotesDao
+    private val notesDao: NotesDao,
+    private val imageFileManager: ImageFileManager
 ) : NoteRepository {
 
     override suspend fun addNote(
@@ -17,17 +18,39 @@ class NoteRepositoryImpl @Inject constructor(
         isPinned: Boolean,
         updatedAt: Long
     ) {
-        val note = Note(0, title, content, updatedAt, isPinned)
+        val note = Note(0, title, content.processForStorage(), updatedAt, isPinned)
         val noteDBModel = note.toDBModel()
         notesDao.addNote(noteDBModel)
     }
 
     override suspend fun deleteNote(noteId: Int) {
+        val note = notesDao.getNote(noteId).toEntity()
         notesDao.deleteNote(noteId)
+
+        note.content
+            .filterIsInstance<ContentItem.Image>()
+            .map { it.url }
+            .forEach {
+                imageFileManager.deleteImageInInternalStorage(it)
+            }
     }
 
     override suspend fun editNote(note: Note) {
-        notesDao.addNote(note.toDBModel())
+        val oldNote = notesDao.getNote(note.id).toEntity()
+
+        val oldUrls = oldNote.content.filterIsInstance<ContentItem.Image>().map { it.url }
+        val newUrls = note.content.filterIsInstance<ContentItem.Image>().map { it.url }
+
+        val removeUrls =oldUrls - newUrls
+
+        removeUrls.forEach {
+            imageFileManager.deleteImageInInternalStorage(it)
+        }
+
+        val processContent = note.content.processForStorage()
+        val processNote = note.copy(content = processContent)
+
+        notesDao.addNote(processNote.toDBModel())
     }
 
     override fun getAllNotes(): Flow<List<Note>> {
@@ -44,5 +67,21 @@ class NoteRepositoryImpl @Inject constructor(
 
     override suspend fun switchPinnedStatus(noteId: Int) {
         notesDao.switchPinnedStatus(noteId)
+    }
+
+    private suspend fun List<ContentItem>.processForStorage() : List<ContentItem> {
+        return map { contentItem ->
+            when(contentItem) {
+                is ContentItem.Image -> {
+                    if (imageFileManager.isInternal(contentItem.url)) {
+                        contentItem
+                    } else {
+                        val internalPath = imageFileManager.copeImageToInternalStorage(contentItem.url)
+                        ContentItem.Image(internalPath)
+                    }
+                }
+                is ContentItem.Text -> contentItem
+            }
+        }
     }
 }
