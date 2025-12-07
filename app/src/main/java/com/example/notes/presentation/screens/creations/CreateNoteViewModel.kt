@@ -4,9 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notes.domain.ContentItem
-import com.example.notes.domain.ContentItem.*
 import com.example.notes.domain.usecase.AddNoteUseCase
-import com.example.notes.presentation.screens.creations.CreateNoteState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -94,6 +92,20 @@ class CreateNoteViewModel @Inject constructor(
                     }
                 }
             }
+
+            is CreateNoteCommand.DeleteImage -> {
+                _state.update { previousState ->
+                    if (previousState is CreateNoteState.Creation) {
+                        previousState.content.toMutableList().apply {
+                            removeAt(command.index)
+                        }.let {
+                            previousState.copy(content = it)
+                        }
+                    } else {
+                        previousState
+                    }
+                }
+            }
         }
     }
 }
@@ -101,10 +113,15 @@ class CreateNoteViewModel @Inject constructor(
 sealed interface CreateNoteCommand {
 
     data class InputTitle(val title: String) : CreateNoteCommand
+
     data class InputContent(val content: String, val index: Int) : CreateNoteCommand
 
     data class AddImage(val uri: Uri) : CreateNoteCommand
+
+    data class DeleteImage(val index: Int) : CreateNoteCommand
+
     data object Save : CreateNoteCommand
+
     data object Back : CreateNoteCommand
 }
 
