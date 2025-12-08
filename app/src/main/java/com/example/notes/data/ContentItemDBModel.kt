@@ -1,13 +1,27 @@
 package com.example.notes.data
 
-import kotlinx.serialization.Serializable
+import androidx.room.Entity
+import androidx.room.ForeignKey
 
-@Serializable
-sealed interface ContentItemDBModel {
+@Entity(
+    tableName = "content",
+    primaryKeys = ["noteId", "order"],
+    foreignKeys = [
+        ForeignKey(
+            entity = NoteDBModel::class,
+            parentColumns = ["id"],
+            childColumns = ["noteId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
+data class ContentItemDBModel (
+    val noteId: Int,
+    val contentType: ContentType,
+    val content: String,
+    val order: Int
+)
 
-    @Serializable
-    data class Text(val content: String): ContentItemDBModel
-
-    @Serializable
-    data class Image(val url: String): ContentItemDBModel
+enum class ContentType {
+    TEXT, IMAGE
 }
