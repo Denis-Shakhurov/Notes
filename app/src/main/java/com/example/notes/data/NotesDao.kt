@@ -4,14 +4,18 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
+import com.example.notes.domain.ContentItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotesDao {
 
+    @Transaction
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
     fun getAllNotes(): Flow<List<NoteWithContentDBModel>>
 
+    @Transaction
     @Query("""
         SELECT DISTINCT notes.* FROM notes
         JOIN content
@@ -22,6 +26,7 @@ interface NotesDao {
     """)
     fun searchNotes(query: String): Flow<List<NoteWithContentDBModel>>
 
+    @Transaction
     @Query("DELETE FROM notes WHERE id == :noteId")
     suspend fun deleteNote(noteId: Int)
 
@@ -39,4 +44,24 @@ interface NotesDao {
 
     @Query("SELECT * FROM notes WHERE id == :noteId")
     suspend fun getNote(noteId: Int): NoteWithContentDBModel
+
+    @Transaction
+    suspend fun addNoteWithContent(
+        noteDBModel: NoteDBModel,
+        content: List<ContentItem>
+    ) {
+        val noteId = addNote(noteDBModel).toInt()
+        val contentItems = content.toContentItemDbModels(noteId)
+        addNoteContent(contentItems)
+    }
+
+    @Transaction
+    suspend fun updateNote(
+        noteDBModel: NoteDBModel,
+        content: List<ContentItemDBModel>
+    ) {
+        addNote(noteDBModel)
+        deleteNoteContent(noteDBModel.id)
+        addNoteContent(content)
+    }
 }
