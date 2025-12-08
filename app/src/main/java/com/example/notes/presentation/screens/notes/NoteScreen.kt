@@ -33,9 +33,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -82,7 +84,7 @@ fun NoteScreen(
             item {
                 Title(
                     modifier = Modifier.padding(horizontal = 24.dp),
-                    text = "All Notes"
+                    text = stringResource(R.string.all_notes)
                 )
             }
 
@@ -120,32 +122,15 @@ fun NoteScreen(
                         items = state.pinnedNotes,
                         key = { _, note -> note.id }
                     ) { index, note ->
-                        val imageUrl = note.content
-                            .filterIsInstance<ContentItem.Image>()
-                            .map { it.url }
-                            .firstOrNull()
-                        if (imageUrl == null) {
-                            NoteCard(
-                                modifier = Modifier.widthIn(max = 160.dp),
-                                note = note,
-                                onNoteClick = onNoteClick,
-                                onLongClick = {
-                                    viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
-                                },
-                                backgroundColor = PinnedNotesColors[index % PinnedNotesColors.size]
-                            )
-                        } else {
-                            NoteCardWithImage(
-                                modifier = Modifier.widthIn(max = 160.dp),
-                                note = note,
-                                imageUrl = imageUrl,
-                                onNoteClick = onNoteClick,
-                                onLongClick = {
-                                    viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
-                                },
-                                backgroundColor = PinnedNotesColors[index % PinnedNotesColors.size]
-                            )
-                        }
+                        NoteCard(
+                            modifier = Modifier.widthIn(max = 160.dp),
+                            note = note,
+                            onNoteClick = onNoteClick,
+                            onLongClick = {
+                                viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
+                            },
+                            backgroundColor = PinnedNotesColors[index % PinnedNotesColors.size]
+                        )
                     }
                 }
             }
@@ -165,17 +150,38 @@ fun NoteScreen(
                 items = state.otherNotes,
                 key = { _, note -> note.id }
             ) { index, note ->
-                NoteCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    note = note,
-                    onNoteClick = onNoteClick,
-                    onLongClick = {
-                        viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
-                    },
-                    backgroundColor = OtherNotesColors[index % OtherNotesColors.size]
-                )
+                val imageUrl = note.content
+                    .filterIsInstance<ContentItem.Image>()
+                    .map { it.url }
+                    .firstOrNull()
+
+                if (imageUrl == null) {
+                    NoteCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        note = note,
+                        onNoteClick = onNoteClick,
+                        onLongClick = {
+                            viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
+                        },
+                        backgroundColor = OtherNotesColors[index % OtherNotesColors.size]
+                    )
+                } else {
+                    NoteCardWithImage(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        note = note,
+                        imageUrl = imageUrl,
+                        onNoteClick = onNoteClick,
+                        onLongClick = {
+                            viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
+                        },
+                        backgroundColor = OtherNotesColors[index % OtherNotesColors.size]
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -215,7 +221,7 @@ private fun SearchBar(
         onValueChange = onQueryChange,
         placeholder = {
             Text(
-                text = "Search...",
+                text = stringResource(R.string.search),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -269,9 +275,10 @@ fun NoteCardWithImage(
                 onLongClick = { onLongClick(note) },
             )
     ) {
-        Box(){
+        Box() {
             AsyncImage(
-                modifier = Modifier.heightIn(120.dp)
+                modifier = Modifier
+                    .heightIn(max = 120.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
                 model = imageUrl,
@@ -279,7 +286,17 @@ fun NoteCardWithImage(
                 contentScale = ContentScale.FillWidth
             )
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                        )
+                    )
                     .padding(16.dp)
                     .align(Alignment.BottomStart)
             ) {
